@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ランキング発表くん | ranking.html</title>
+<meta name="description" content="ランキング発表くん本体。1〜10位を入力してクリックで発表。色変更・自動保存対応。">
+<link rel="canonical" href="./ranking.html">
+<meta property="og:title" content="ランキング発表くん">
+<meta property="og:description" content="順位を入力してクリックで発表！イベントや配信に便利な無料Webアプリ。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="./ranking.html">
+<meta property="og:image" content="./og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+  :root{
+    --gap:14px; --radius:14px; --bg:#0b0c10; --fg:#fff; --line:#1f2230;
+    --card:#11131a;
+    --rowH:48px; --rowPadV:10px; --rowPadH:12px;
+    --minFontPx:12; --baseFontPx:16;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:var(--bg);color:var(--fg)}
+  a{color:inherit;text-decoration:underline}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:20px 20px 40px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{inline-size:32px; block-size:32px; border-radius:10px; background:linear-gradient(135deg,#2dd4bf,#60a5fa); display:inline-block}
+  .title{font-weight:800;font-size:1.1rem}
+  .back a{opacity:.9}
+  .back a:hover{opacity:1}
+
+  textarea,input,button,select{font-size:16px}
+  textarea{width:100%;min-height:160px;padding:12px;border:1px solid #2b3042;border-radius:12px;background:#0f1118;color:#e5e7eb}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-top:10px}
+  input[type="text"], select{padding:10px 12px;border:1px solid #2b3042;border-radius:12px;background:#0f1118;color:#e5e7eb}
+  button{padding:10px 14px;border-radius:999px;border:1px solid #3b82f6;background:#3b82f6;color:#fff;cursor:pointer;font-weight:600}
+  button.ghost{background:transparent;border-color:#374151}
+  .panel{
+    background:#0f1118;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:14px;display:grid;gap:10px;
+  }
+  .panel h2{font-size:1rem;margin:0 0 4px}
+  .panel .row{align-items:center}
+  .panel .row > *{flex:1}
+  .panel .row .narrow{flex:0 0 160px}
+  .panel .row .mid{flex:0 0 220px}
+
+  .grid{display:grid;gap:var(--gap);grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));margin-top:14px}
+  .col{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;min-height:220px}
+  .titleRow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .title{font-weight:800}
+  .titleRow button{padding:6px 10px;border-radius:10px;border:1px solid #ef4444;background:#ef4444}
+
+  .ad{
+    margin:16px 0; border:1px dashed #2b2f44; border-radius:14px; padding:12px; text-align:center; color:#cbd5e1;
+  }
+  .ad .label{font-size:12px; color:#9aa3b2; margin-bottom:6px}
+
+  ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  li{
+    position:relative;border:1px dashed #2b2f44;border-radius:10px;
+    background:var(--cardBg, #141827); overflow:hidden; cursor:pointer; height:var(--rowH);
+    transition:background-color .12s ease, border-color .12s ease;
+  }
+  .rowin{position:relative;z-index:1;display:flex;align-items:center;gap:10px;padding:var(--rowPadV) var(--rowPadH);height:100%;}
+  .num{font-weight:800;min-width:3.2em;text-align:right;flex:0 0 auto;color:#cbd5e1}
+  .val{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;color:#e5e7eb}
+
+  /* 覆い & 中央順位バッジ（非表示時） */
+  .mask{position:absolute;inset:0;background:linear-gradient(180deg,#1f2329,#30363d);z-index:2;}
+  .rankBadge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none;}
+  .rankBadge .badge{background:#fff;color:#111;border:2px solid #111;border-radius:999px;padding:6px 12px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+  li.revealed .mask{display:none}
+  li.revealed .rankBadge{display:none}
+
+  /* 暗い色のときは文字を白に補正 */
+  li.onDark .rowin .num, li.onDark .rowin .val { color:#fff; }
+  li.onDark { border-color: rgba(255,255,255,.35); }
+
+  /* 右クリック カラーメニュー */
+  .ctx{
+    position:fixed; background:#0f1118; border:1px solid #2b2f44; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.35);
+    padding:10px; display:none; z-index:9999; min-width:220px; color:#e5e7eb;
+  }
+  .ctx h3{margin:0 0 8px; font-size:.95rem}
+  .swatches{display:grid; grid-template-columns: repeat(6, 28px); gap:8px; padding:4px 2px}
+  .swatch{width:28px; height:28px; border-radius:6px; border:1px solid rgba(255,255,255,.15); cursor:pointer}
+  .ctx .rowbtn{display:flex; gap:8px; margin-top:8px; justify-content:flex-end}
+  .ctx button{padding:6px 10px; border-radius:8px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <span class="logo" aria-hidden="true"></span>
+        <span class="title">ランキング発表くん</span>
+      </div>
+      <div class="back"><a href="./index.html">← 入口ページへ戻る</a></div>
+    </header>
+
+    <!-- 入力エリア -->
+    <textarea id="rank" placeholder="ランキングを1位から10位まで改行で入力（不足分は未入力で作成）" autocomplete="off"></textarea>
+    <div class="row">
+      <input id="title" type="text" placeholder="ランキングタイトル" autocomplete="off" class="mid">
+      <button id="add">列を作る</button>
+      <button id="clearAll" class="ghost" title="全データ削除（復元不可）">全消去</button>
+    </div>
+
+    <!-- PR枠（A8タグを貼る場所：上部） -->
+    <div class="ad" aria-label="sponsored">
+      <div class="label">PR</div>
+      <!-- ▼A8.netの発行タグをここへ（例：バナー）。改変せずコピペ推奨 -->
+      <!--
+      <a href="A8から発行のURL" target="_blank" rel="sponsored nofollow noopener">
+        <img src="A8から発行のバナーURL" alt="広告" style="max-width:100%;height:auto;border-radius:12px;">
+      </a>
+      -->
+    </div>
+
+    <!-- 編集パネル -->
+    <div class="panel">
+      <h2>編集パネル</h2>
+      <div class="row">
+        <select id="colSelect" class="mid"><option value="">列を選択</option></select>
+        <select id="rankSelect" class="narrow"><option value="">順位</option></select>
+        <input id="editInput" type="text" placeholder="内容を編集して保存" autocomplete="off">
+        <button id="saveEdit" class="narrow">保存</button>
+      </div>
+      <small style="color:#9aa3b2">※ 開いている項目を右クリックで色を変更できます。</small>
+    </div>
+
+    <!-- ランキング列 -->
+    <div id="grid" class="grid"></div>
+
+    <!-- PR枠（A8タグを貼る場所：下部） -->
+    <div class="ad" aria-label="sponsored">
+      <div class="label">PR</div>
+      <!-- ▼A8.netの発行タグをここへ -->
+      <!-- <a href="..." target="_blank" rel="sponsored nofollow noopener"><img src="..." alt="広告" style="max-width:100%;height:auto;border-radius:12px;"></a> -->
+    </div>
+  </div>
+
+  <!-- 右クリック カラーメニュー -->
+  <div id="ctx" class="ctx" role="menu" aria-hidden="true">
+    <h3>ボードの色を変更</h3>
+    <div class="swatches" id="swatches"></div>
+    <div class="rowbtn">
+      <button id="ctxClose">閉じる</button>
+    </div>
+  </div>
+
+<script>
+let colCounter = 0;
+const STORAGE_KEY = 'rankingData.v3'; // v3: エントランス対応＆機能追加
+
+// 指定カラー（ご要望のパレット）
+const COLORS = [
+  {name:'白', code:'#ffffff'},
+  {name:'#f8b407', code:'#f8b407'},
+  {name:'#5383c3', code:'#5383c3'},
+  {name:'#68be8d', code:'#68be8d'},
+  {name:'#b92636', code:'#b92636'},
+  {name:'#e75f9d', code:'#e75f9d'},
+  {name:'#c8c2c6', code:'#c8c2c6'},
+  {name:'#a1d6dc', code:'#a1d6dc'},
+  {name:'#fad664', code:'#fad664'},
+  {name:'#9e8ce2', code:'#9e8ce2'},
+  {name:'#f36456', code:'#f36456'},
+  {name:'#1ebecc', code:'#1ebecc'}
+];
+
+const elRank = document.getElementById('rank');
+const elTitle = document.getElementById('title');
+const elGrid  = document.getElementById('grid');
+
+const colSelect  = document.getElementById('colSelect');
+const rankSelect = document.getElementById('rankSelect');
+const editInput  = document.getElementById('editInput');
+const saveEdit   = document.getElementById('saveEdit');
+
+const clearAllBtn = document.getElementById('clearAll');
+
+const ctx = document.getElementById('ctx');
+const ctxClose = document.getElementById('ctxClose');
+const swatches = document.getElementById('swatches');
+let ctxTargetLi = null;
+
+/* スウォッチ生成 */
+(function buildSwatches(){
+  COLORS.forEach(c=>{
+    const d = document.createElement('button');
+    d.className = 'swatch';
+    d.title = c.name;
+    d.style.background = c.code;
+    d.addEventListener('click', ()=>{
+      if(!ctxTargetLi) return;
+      setItemColor(ctxTargetLi, c.code);
+      saveAll();
+      hideCtx();
+    });
+    swatches.appendChild(d);
+  });
+})();
+
+/* 順位セレクト 1..10 */
+(function initRankSelect(){
+  for (let i=1;i<=10;i++){
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = i + '位';
+    rankSelect.appendChild(opt);
+  }
+})();
+
+/* 保存/復元（色も含む） */
+function saveAll(){
+  const data = [];
+  document.querySelectorAll('.col').forEach(col=>{
+    const title = col.querySelector('.title').textContent;
+    const items = Array.from(col.querySelectorAll('li')).map(li=>{
+      const val = li.querySelector('.val').textContent;
+      const bg  = li.style.getPropertyValue('--cardBg') || '';
+      return { text: val, color: bg };
+    });
+    data.push({title, items});
+  });
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+  catch(e){ console.warn('保存に失敗', e); }
+}
+function loadAll(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const arr = JSON.parse(raw);
+    arr.forEach(d=>{
+      const col = createCol(d.title, d.items);
+      elGrid.appendChild(col);
+      registerColumn(col, d.title);
+    });
+  }catch(e){ console.warn('読み込みに失敗', e); }
+}
+
+/* UIヘルパ */
+function registerColumn(colEl, title){
+  const id = colEl.dataset.colId;
+  const opt = document.createElement('option');
+  opt.value = id;
+  opt.textContent = (title || 'ランキング') + `（ID:${id}）`;
+  colSelect.appendChild(opt);
+}
+function removeColumnFromSelect(colId){
+  const opt = colSelect.querySelector(`option[value="${colId}"]`);
+  if(opt) opt.remove();
+}
+function findItem(colId, rankIndex1based){
+  const col = document.querySelector(`.col[data-col-id="${colId}"]`);
+  return col ? col.querySelector(`li[data-rank="${rankIndex1based}"]`) : null;
+}
+
+/* 1行フィット（表示時に実行） */
+function fitTextToOneLine(valEl){
+  const root = getComputedStyle(document.documentElement);
+  const base = parseFloat(root.getPropertyValue('--baseFontPx')) || 16;
+  const min  = parseFloat(root.getPropertyValue('--minFontPx'))  || 12;
+  valEl.style.fontSize = base + 'px';
+  valEl.style.whiteSpace = 'nowrap';
+  valEl.style.overflow = 'hidden';
+  valEl.style.textOverflow = 'ellipsis';
+  if (valEl.scrollWidth <= valEl.clientWidth) return;
+  let size = base;
+  while (size > min) {
+    size--;
+    valEl.style.fontSize = size + 'px';
+    if (valEl.scrollWidth <= valEl.clientWidth) return;
+  }
+  valEl.style.fontSize = min + 'px';
+}
+
+/* 背景色の明度で文字色補正 */
+function isDarkColor(hex){
+  const c = (hex||'').replace('#','');
+  if(!c) return false;
+  const r = parseInt(c.length===3? c[0]+c[0] : c.slice(0,2),16);
+  const g = parseInt(c.length===3? c[1]+c[1] : c.slice(2,4),16);
+  const b = parseInt(c.length===3? c[2]+c[2] : c.slice(4,6),16);
+  const luminance = (0.2126*r + 0.7152*g + 0.0722*b)/255;
+  return luminance < 0.55;
+}
+function setItemColor(li, color){
+  if(!color){ li.style.removeProperty('--cardBg'); li.classList.remove('onDark'); return; }
+  li.style.setProperty('--cardBg', color);
+  li.classList.toggle('onDark', isDarkColor(color));
+}
+
+/* 項目（li） */
+function createItem(rankIndex, item, colId){
+  const text = (typeof item === 'string') ? item : (item?.text ?? '');
+  const color = (typeof item === 'object' && item?.color) ? item.color : '';
+
+  const rank1 = rankIndex + 1;
+  const li = document.createElement('li');
+  li.dataset.rank = String(rank1);
+  li.dataset.colId = String(colId);
+
+  if(color) setItemColor(li, color);
+
+  const row = document.createElement('div'); row.className = 'rowin';
+  const num = document.createElement('div'); num.className = 'num'; num.textContent = rank1 + '位';
+  const val = document.createElement('div'); val.className = 'val'; val.textContent = text || '（未入力）';
+
+  row.appendChild(num); row.appendChild(val);
+
+  const mask = document.createElement('div'); mask.className = 'mask';
+  const badgeWrap = document.createElement('div'); badgeWrap.className = 'rankBadge';
+  badgeWrap.innerHTML = `<div class="badge">${rank1}位</div>`;
+
+  // 左クリック：開閉
+  li.addEventListener('click', () => {
+    li.classList.toggle('revealed');
+    if (li.classList.contains('revealed')) fitTextToOneLine(val);
+  });
+
+  // 右クリック：色変更（開いているときのみ）
+  li.addEventListener('contextmenu', (e) => {
+    if(!li.classList.contains('revealed')) return;
+    e.preventDefault();
+    ctxTargetLi = li;
+    showCtx(e.clientX, e.clientY);
+  });
+
+  li.appendChild(row); li.appendChild(mask); li.appendChild(badgeWrap);
+  // 初期フィット（開いたときも再調整）
+  fitTextToOneLine(val);
+  return li;
+}
+
+/* 列 */
+function createCol(title, items10){
+  const col = document.createElement('div'); col.className = 'col';
+  const colId = ++colCounter; col.dataset.colId = String(colId);
+
+  const titleRow = document.createElement('div'); titleRow.className = 'titleRow';
+  const h = document.createElement('div'); h.className = 'title'; h.textContent = title || 'ランキング';
+  const delBtn = document.createElement('button'); delBtn.textContent = '削除';
+  delBtn.addEventListener('click', () => {
+    col.remove(); removeColumnFromSelect(colId); saveAll();
+    if(colSelect.value === String(colId)){ colSelect.value=''; rankSelect.value=''; editInput.value=''; }
+  });
+  titleRow.appendChild(h); titleRow.appendChild(delBtn); col.appendChild(titleRow);
+
+  const list = document.createElement('ol');
+  for (let i=0;i<10;i++) list.appendChild(createItem(i, items10[i] || '', colId));
+  col.appendChild(list);
+
+  return col;
+}
+
+/* 追加 */
+document.getElementById('add').addEventListener('click', () => {
+  const lines = elRank.value.split('\n').map(l => l.trim());
+  const col = createCol(elTitle.value.trim(), lines);
+  elGrid.appendChild(col);
+  registerColumn(col, elTitle.value.trim());
+  saveAll();
+  elRank.value = ''; elTitle.value = '';
+  colSelect.value = col.dataset.colId; rankSelect.value=''; editInput.value='';
+});
+
+/* 編集 */
+function loadCurrentToEditor(){
+  const colId = colSelect.value, r1 = rankSelect.value;
+  if (!colId || !r1){ editInput.value = ''; return; }
+  const li = findItem(colId, r1);
+  editInput.value = li ? li.querySelector('.val').textContent : '';
+}
+colSelect.addEventListener('change', loadCurrentToEditor);
+rankSelect.addEventListener('change', loadCurrentToEditor);
+
+saveEdit.addEventListener('click', () => {
+  const colId = colSelect.value, r1 = rankSelect.value;
+  if (!colId || !r1) return;
+  const li = findItem(colId, r1); if (!li) return;
+  const valEl = li.querySelector('.val');
+  valEl.textContent = (editInput.value || '').trim() || '（未入力）';
+  fitTextToOneLine(valEl);
+  saveAll();
+});
+
+/* 全消去（localStorageを空にして画面をリセット） */
+clearAllBtn.addEventListener('click', () => {
+  if(!confirm('保存データをすべて削除します。よろしいですか？')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+});
+
+/* 右クリックメニュー制御 */
+function showCtx(x,y){
+  ctx.style.display = 'block';
+  const rect = ctx.getBoundingClientRect();
+  // 画面内に収める
+  let left = x, top = y;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  if (left + rect.width > vw) left = vw - rect.width - 8;
+  if (top + rect.height > vh) top = vh - rect.height - 8;
+  ctx.style.left = left + 'px';
+  ctx.style.top  = top  + 'px';
+  ctx.setAttribute('aria-hidden','false');
+}
+function hideCtx(){
+  ctx.style.display = 'none';
+  ctx.setAttribute('aria-hidden','true');
+  ctxTargetLi = null;
+}
+document.getElementById('ctxClose').addEventListener('click', hideCtx);
+window.addEventListener('mousedown', (e)=>{ if(!ctx.contains(e.target)) hideCtx(); });
+window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') hideCtx(); });
+
+/* 初期化：保存データ復元 */
+loadAll();
+</script>
+</body>
+</html>
