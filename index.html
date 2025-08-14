@@ -3,233 +3,163 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>クリックで開閉・1行固定・自動フィット・保存あり（localStorage）</title>
+<title>ランキング発表くん | 入口ページ</title>
+<meta name="description" content="ランキング発表くんの入口ページ。イベントや配信で使える無料Webツールや今後の新機能ページへ案内します。">
+<link rel="canonical" href="https://ユーザー名.github.io/">
+<meta property="og:title" content="ランキング発表くん | 入口ページ">
+<meta property="og:description" content="イベント・配信に便利な無料Webツールの入口。ランキング発表くん ほか。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ユーザー名.github.io/">
+<meta property="og:image" content="https://ユーザー名.github.io/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- 構造化データ（入口サイト） -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Website",
+  "name":"ランキング発表くん",
+  "url":"https://ユーザー名.github.io/",
+  "description":"イベント・配信に便利な無料Webツールの入口。",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://ユーザー名.github.io/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
 <style>
   :root{
-    --gap:14px; --radius:14px; --bg:#f7f7f8; --line:#e6e6ee;
-    --rowH:48px; --rowPadV:10px; --rowPadH:12px;
-    --minFontPx:12; --baseFontPx:16;
+    --bg:#0b0c10; --fg:#fff; --muted:#b4bac4; --card:#11131a; --line:#1f2230;
+    --acc:#00d4ff; --radius:16px; --gap:16px;
   }
   *{box-sizing:border-box}
-  body{margin:20px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:var(--bg);color:#222}
-  h1{font-size:1.1rem;margin:0 0 12px}
-  .wrap{display:grid;gap:18px;max-width:1200px}
-  textarea,input,button,select{font-size:16px}
-  textarea{width:100%;min-height:180px;padding:12px;border:1px solid #d5d7df;border-radius:var(--radius);background:#fff}
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
-  input[type="text"], select{padding:10px 12px;border:1px solid #d5d7df;border-radius:12px;background:#fff}
-  button{padding:6px 10px;border-radius:999px;border:1px solid #cfd2da;background:#fff;cursor:pointer;font-weight:600}
-  button.primary{background:#111;color:#fff;border-color:#111}
-  .grid{display:grid;gap:var(--gap);grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));}
-  .col{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px;min-height:220px;box-shadow:0 2px 10px rgba(0,0,0,.04);}
-  .titleRow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-  .title{font-weight:800}
-  ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-  li{position:relative;border:1px dashed #e9e9f1;border-radius:10px;background:#fafafa;overflow:hidden;cursor:pointer;height:var(--rowH);}
-  .rowin{position:relative;z-index:1;display:flex;align-items:center;gap:10px;padding:var(--rowPadV) var(--rowPadH);height:100%;}
-  .num{font-weight:800;min-width:3.2em;text-align:right;flex:0 0 auto;}
-  .val{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;}
-  .mask{position:absolute;inset:0;background:linear-gradient(180deg,#1f2329,#30363d);z-index:2;}
-  .rankBadge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none;}
-  .rankBadge .badge{background:#fff;color:#111;border:2px solid #111;border-radius:999px;padding:6px 12px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.15);}
-  li.revealed .mask{display:none}
-  li.revealed .rankBadge{display:none}
-  .panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:10px;}
-  .panel h2{font-size:1rem;margin:0 0 4px}
-  .panel .row{align-items:center}
-  .panel .row > *{flex:1}
-  .panel .row .narrow{flex:0 0 160px}
-  .panel .row .mid{flex:0 0 220px}
+  html,body{height:100%}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:var(--bg);color:var(--fg)}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{inline-size:36px; block-size:36px; border-radius:10px; background:linear-gradient(135deg,#2dd4bf,#60a5fa); display:inline-block}
+  .title{font-weight:800;font-size:1.1rem}
+  nav a{opacity:.9;margin-left:14px}
+  nav a:hover{opacity:1}
+  .hero{
+    margin:28px 0; padding:32px; border:1px solid var(--line); border-radius:var(--radius);
+    background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+  }
+  .hero h1{margin:0 0 10px; font-size:1.7rem}
+  .hero p{margin:0; color:var(--muted)}
+  .cta{margin-top:18px; display:flex; gap:12px; flex-wrap:wrap}
+  .btn{
+    padding:12px 16px; border-radius:999px; border:1px solid #3b82f6; background:#3b82f6; color:#fff; font-weight:700;
+  }
+  .btn.sec{border-color:#374151;background:transparent}
+  .grid{
+    margin-top:26px;
+    display:grid; gap:var(--gap);
+    grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+  }
+  .card{
+    border:1px solid var(--line); border-radius:var(--radius); background:var(--card);
+    padding:16px; display:flex; flex-direction:column; gap:10px; min-height:140px;
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .card:hover{transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  .card h3{margin:0; font-size:1.05rem}
+  .card p{margin:0; color:var(--muted)}
+  .badge{display:inline-flex; align-items:center; gap:6px; font-size:.8rem; color:#cbd5e1}
+  .badge .dot{inline-size:8px; block-size:8px; border-radius:999px; background:#22d3ee}
+  .ad{
+    margin-top:28px; border:1px dashed #2b2f44; border-radius:var(--radius); padding:12px; text-align:center; color:#cbd5e1;
+  }
+  .ad .label{font-size:12px; color:#9aa3b2; margin-bottom:6px}
+  footer{margin-top:32px; padding-top:12px; border-top:1px solid var(--line); color:#9aa3b2; font-size:.92rem; display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between}
+  footer a{color:#9aa3b2; text-decoration:underline}
 </style>
 </head>
 <body>
-  <h1>ランキング発表くん</h1>
   <div class="wrap">
-    <textarea id="rank" placeholder="ランキングを1位から10位まで改行で入力" autocomplete="off"></textarea>
-    <div class="row">
-      <input id="title" type="text" placeholder="ランキングタイトル" autocomplete="off" class="mid">
-      <button id="add" class="primary narrow">列を作る</button>
-    </div>
-    <div class="panel">
-      <h2>編集パネル</h2>
-      <div class="row">
-        <select id="colSelect" class="mid"><option value="">列を選択</option></select>
-        <select id="rankSelect" class="narrow"><option value="">順位</option></select>
-        <input id="editInput" type="text" placeholder="内容を編集して保存" autocomplete="off">
-        <button id="saveEdit" class="primary narrow">保存</button>
+    <header>
+      <div class="brand">
+        <span class="logo" aria-hidden="true"></span>
+        <span class="title">ランキング発表くん</span>
       </div>
+      <nav>
+        <a href="./ranking.html">アプリ</a>
+        <a href="./privacy.html">プライバシー</a>
+        <a href="./contact.html">お問い合わせ</a>
+      </nav>
+    </header>
+
+    <section class="hero" aria-labelledby="h1">
+      <h1 id="h1">イベント・配信で使える 無料Webツール</h1>
+      <p>「ランキング発表くん」をはじめ、シンプルで軽いツールを公開していきます。保存対応・モバイルOK。</p>
+      <div class="cta">
+        <a class="btn" href="./ranking.html">ランキング発表くんを開く</a>
+        <a class="btn sec" href="#tools">他のツールを見る</a>
+      </div>
+    </section>
+
+    <!-- PR枠（A8タグをここへ） -->
+    <div class="ad" aria-label="sponsored">
+      <div class="label">PR</div>
+      <!-- ▼A8.netの発行タグを貼る（例：バナー） -->
+      <!--
+      <a href="A8から発行のURL" target="_blank" rel="sponsored nofollow noopener">
+        <img src="A8から発行のバナーURL" alt="広告" style="max-width:100%;height:auto;border-radius:12px;">
+      </a>
+      -->
+      <!-- ▲ここまで -->
+      <small>広告はユーザー体験を損ねない範囲で表示しています。</small>
     </div>
-    <div id="grid" class="grid"></div>
+
+    <section id="tools" class="grid" aria-label="ツール一覧">
+      <!-- カード1：ランキング発表くん -->
+      <a class="card" href="./ranking.html">
+        <div class="badge"><span class="dot"></span>公開中</div>
+        <h3>ランキング発表くん</h3>
+        <p>1〜10位を入力してクリックで発表。右クリックで色変更、保存対応。</p>
+      </a>
+
+      <!-- カード2以降：ひな形（今後のページのプレースホルダー） -->
+      <a class="card" href="./coming-soon.html">
+        <div class="badge"><span class="dot" style="background:#fbbf24"></span>近日公開</div>
+        <h3>（新ツール）</h3>
+        <p>ここに次のページを追加予定。</p>
+      </a>
+      <a class="card" href="./coming-soon.html">
+        <div class="badge"><span class="dot" style="background:#f472b6"></span>近日公開</div>
+        <h3>（新ツール）</h3>
+        <p>ここに次のページを追加予定。</p>
+      </a>
+    </section>
+
+    <!-- フッター前のPR枠 -->
+    <div class="ad" aria-label="sponsored">
+      <div class="label">PR</div>
+      <!-- ▼A8.netの発行タグを貼る -->
+      <!-- <a href="..." target="_blank" rel="sponsored nofollow noopener"><img src="..." alt="広告" style="max-width:100%;height:auto;border-radius:12px;"></a> -->
+    </div>
+
+    <footer>
+      <div>© <span id="y"></span> ランキング発表くん</div>
+      <div>
+        <a href="./privacy.html">プライバシーポリシー</a> / 
+        <a href="./contact.html">お問い合わせ</a> / 
+        <a href="https://github.com/ユーザー名/ユーザー名.github.io" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </footer>
   </div>
 
 <script>
-let colCounter = 0;
-const STORAGE_KEY = 'rankingData.v1';
+  // 年号自動
+  document.getElementById('y').textContent = new Date().getFullYear();
 
-const elRank = document.getElementById('rank');
-const elTitle = document.getElementById('title');
-const elGrid  = document.getElementById('grid');
-const colSelect  = document.getElementById('colSelect');
-const rankSelect = document.getElementById('rankSelect');
-const editInput  = document.getElementById('editInput');
-const saveEdit   = document.getElementById('saveEdit');
-
-/* 順位セレクト */
-(function initRankSelect(){
-  for (let i=1;i<=10;i++){
-    const opt = document.createElement('option');
-    opt.value = String(i);
-    opt.textContent = i + '位';
-    rankSelect.appendChild(opt);
-  }
-})();
-
-/* ------ 保存まわり（localStorage優先） ------ */
-function saveAll(){
-  const data = [];
-  document.querySelectorAll('.col').forEach(col=>{
-    const title = col.querySelector('.title').textContent;
-    const items = Array.from(col.querySelectorAll('li .val')).map(v=>v.textContent);
-    data.push({title, items});
-  });
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }catch(e){
-    console.warn('保存に失敗しました', e);
-  }
-}
-function loadAll(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return;
-    const arr = JSON.parse(raw);
-    arr.forEach(d=>{
-      const col = createCol(d.title, d.items);
-      elGrid.appendChild(col);
-      registerColumn(col, d.title);
-    });
-  }catch(e){
-    console.warn('読み込みに失敗しました', e);
-  }
-}
-
-/* UIヘルパ */
-function registerColumn(colEl, title){
-  const id = colEl.dataset.colId;
-  const opt = document.createElement('option');
-  opt.value = id;
-  opt.textContent = (title || 'ランキング') + `（ID:${id}）`;
-  colSelect.appendChild(opt);
-}
-function removeColumnFromSelect(colId){
-  const opt = colSelect.querySelector(`option[value="${colId}"]`);
-  if(opt) opt.remove();
-}
-function findItem(colId, rankIndex1based){
-  const col = document.querySelector(`.col[data-col-id="${colId}"]`);
-  return col ? col.querySelector(`li[data-rank="${rankIndex1based}"]`) : null;
-}
-
-/* 1行フィット */
-function fitTextToOneLine(valEl){
-  const root = getComputedStyle(document.documentElement);
-  const base = parseFloat(root.getPropertyValue('--baseFontPx')) || 16;
-  const min  = parseFloat(root.getPropertyValue('--minFontPx'))  || 12;
-  valEl.style.fontSize = base + 'px';
-  valEl.style.whiteSpace = 'nowrap';
-  valEl.style.overflow = 'hidden';
-  valEl.style.textOverflow = 'ellipsis';
-  if (valEl.scrollWidth <= valEl.clientWidth) return;
-  let size = base;
-  while (size > min) {
-    size--;
-    valEl.style.fontSize = size + 'px';
-    if (valEl.scrollWidth <= valEl.clientWidth) return;
-  }
-  valEl.style.fontSize = min + 'px';
-}
-
-/* 項目（li） */
-function createItem(rankIndex, text, colId){
-  const rank1 = rankIndex + 1;
-  const li = document.createElement('li');
-  li.dataset.rank = String(rank1);
-  li.dataset.colId = String(colId);
-
-  const row = document.createElement('div'); row.className = 'rowin';
-  const num = document.createElement('div'); num.className = 'num'; num.textContent = rank1 + '位';
-  const val = document.createElement('div'); val.className = 'val'; val.textContent = text || '（未入力）';
-
-  row.appendChild(num); row.appendChild(val);
-
-  const mask = document.createElement('div'); mask.className = 'mask';
-  const badgeWrap = document.createElement('div'); badgeWrap.className = 'rankBadge';
-  badgeWrap.innerHTML = `<div class="badge">${rank1}位</div>`;
-
-  li.addEventListener('click', () => {
-    li.classList.toggle('revealed');
-    if (li.classList.contains('revealed')) fitTextToOneLine(val);
-  });
-
-  li.appendChild(row); li.appendChild(mask); li.appendChild(badgeWrap);
-  fitTextToOneLine(val);
-  return li;
-}
-
-/* 列 */
-function createCol(title, items10){
-  const col = document.createElement('div'); col.className = 'col';
-  const colId = ++colCounter; col.dataset.colId = String(colId);
-
-  const titleRow = document.createElement('div'); titleRow.className = 'titleRow';
-  const h = document.createElement('div'); h.className = 'title'; h.textContent = title || 'ランキング';
-  const delBtn = document.createElement('button'); delBtn.textContent = '削除';
-  delBtn.addEventListener('click', () => {
-    col.remove(); removeColumnFromSelect(colId); saveAll();
-    if(colSelect.value === String(colId)){ colSelect.value=''; rankSelect.value=''; editInput.value=''; }
-  });
-  titleRow.appendChild(h); titleRow.appendChild(delBtn); col.appendChild(titleRow);
-
-  const list = document.createElement('ol');
-  for (let i=0;i<10;i++) list.appendChild(createItem(i, items10[i] || '', colId));
-  col.appendChild(list);
-
-  return col;
-}
-
-/* 追加 */
-document.getElementById('add').addEventListener('click', () => {
-  const lines = elRank.value.split('\n').map(l => l.trim());
-  const col = createCol(elTitle.value.trim(), lines);
-  elGrid.appendChild(col);
-  registerColumn(col, elTitle.value.trim());
-  saveAll();
-  elRank.value = ''; elTitle.value = '';
-  colSelect.value = col.dataset.colId; rankSelect.value=''; editInput.value='';
-});
-
-/* 編集 */
-function loadCurrentToEditor(){
-  const colId = colSelect.value, r1 = rankSelect.value;
-  if (!colId || !r1){ editInput.value = ''; return; }
-  const li = findItem(colId, r1);
-  editInput.value = li ? li.querySelector('.val').textContent : '';
-}
-colSelect.addEventListener('change', loadCurrentToEditor);
-rankSelect.addEventListener('change', loadCurrentToEditor);
-
-saveEdit.addEventListener('click', () => {
-  const colId = colSelect.value, r1 = rankSelect.value;
-  if (!colId || !r1) return;
-  const li = findItem(colId, r1); if (!li) return;
-  const valEl = li.querySelector('.val');
-  valEl.textContent = (editInput.value || '').trim() || '（未入力）';
-  fitTextToOneLine(valEl);
-  saveAll();
-});
-
-/* 初期化：保存データ復元 */
-loadAll();
+  // 簡易クエリ（将来: 検索導線用に残しておく）
+  const q = new URLSearchParams(location.search).get('q');
+  if(q){ console.log('Search term:', q); }
 </script>
 </body>
 </html>
